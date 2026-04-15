@@ -1,0 +1,21 @@
+{
+  "name": "binance-foop1",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js",
+    "start:paper": "node src/cli/paper.js",
+    "backtest": "node src/cli/backtest.js",
+    "status": "node src/cli/status.js"
+  },
+  "keywords": [],
+  "author": "Ballantines88",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.14.0",
+    "dotenv": "^17.3.1",
+    "ws": "^8.20.0"
+  }
+}
