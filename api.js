@@ -8,7 +8,7 @@ const apiSecret = process.env.API_SECRET;
 const apiUrl = process.env.API_URL;
 
 if (!apiKey || !apiSecret || !apiUrl) {
-  throw new Error("Fill your .env with API_URL, API_KEY and API_SECRET");
+  throw new Error("Preencha o arquivo .env com API_URL, API_KEY e API_SECRET");
 }
 
 const http = axios.create({
@@ -31,7 +31,7 @@ async function getServerTime() {
     const response = await http.get("/fapi/v1/time");
     return response.data.serverTime;
   } catch (error) {
-    logWarn("Failed to fetch Binance server time, using local time");
+    logWarn("Falha ao buscar horario do servidor da Binance, usando horario local");
     return Date.now();
   }
 }
@@ -68,7 +68,7 @@ async function getBalance() {
   try {
     return await signedRequest("GET", "/fapi/v2/balance");
   } catch (error) {
-    logError("Failed to fetch futures balance", error);
+    logError("Falha ao buscar saldo da conta Futures", error);
     throw error;
   }
 }
@@ -77,7 +77,33 @@ async function getPositionRisk(symbol) {
   try {
     return await signedRequest("GET", "/fapi/v2/positionRisk", { symbol });
   } catch (error) {
-    logError("Failed to fetch position risk", error, { symbol });
+    logError("Falha ao buscar risco da posicao", error, { ativo: symbol });
+    throw error;
+  }
+}
+
+async function getOrder(symbol, options = {}) {
+  try {
+    return await signedRequest("GET", "/fapi/v1/order", {
+      symbol,
+      ...options,
+    });
+  } catch (error) {
+    logError("Falha ao buscar detalhes da ordem", error, {
+      ativo: symbol,
+      ...options,
+    });
+    throw error;
+  }
+}
+
+async function getOpenOrders(symbol) {
+  try {
+    return await signedRequest("GET", "/fapi/v1/openOrders", { symbol });
+  } catch (error) {
+    logError("Falha ao buscar ordens abertas", error, {
+      ativo: symbol,
+    });
     throw error;
   }
 }
@@ -98,14 +124,50 @@ async function newOrder(symbol, quantity, side = "BUY", type = "MARKET", options
       payload.reduceOnly = String(payload.reduceOnly);
     }
 
+    if (payload.closePosition !== undefined) {
+      payload.closePosition = String(payload.closePosition);
+    }
+
+    if (payload.priceProtect !== undefined) {
+      payload.priceProtect = String(payload.priceProtect);
+    }
+
     return await signedRequest("POST", "/fapi/v1/order", payload);
   } catch (error) {
-    logError("Failed to submit futures order", error, {
-      symbol,
-      quantity,
-      side,
-      type,
+    logError("Falha ao enviar ordem na Futures", error, {
+      ativo: symbol,
+      quantidade: quantity,
+      lado: side,
+      tipo: type,
       ...options,
+    });
+    throw error;
+  }
+}
+
+async function cancelOrder(symbol, options = {}) {
+  try {
+    return await signedRequest("DELETE", "/fapi/v1/order", {
+      symbol,
+      ...options,
+    });
+  } catch (error) {
+    logError("Falha ao cancelar ordem", error, {
+      ativo: symbol,
+      ...options,
+    });
+    throw error;
+  }
+}
+
+async function cancelAllOpenOrders(symbol) {
+  try {
+    return await signedRequest("DELETE", "/fapi/v1/allOpenOrders", {
+      symbol,
+    });
+  } catch (error) {
+    logError("Falha ao cancelar todas as ordens abertas", error, {
+      ativo: symbol,
     });
     throw error;
   }
@@ -115,7 +177,7 @@ async function getExchangeInfo() {
   try {
     return await publicGet("/fapi/v1/exchangeInfo");
   } catch (error) {
-    logError("Failed to fetch exchange info", error);
+    logError("Falha ao buscar informacoes da corretora", error);
     throw error;
   }
 }
@@ -131,9 +193,9 @@ async function getCandles(symbol, interval, options = {}) {
       ...normalizedOptions,
     });
   } catch (error) {
-    logError("Failed to fetch futures klines", error, {
-      symbol,
-      interval,
+    logError("Falha ao buscar klines da Futures", error, {
+      ativo: symbol,
+      intervalo: interval,
       ...options,
     });
     throw error;
@@ -147,9 +209,9 @@ async function getOrderBook(symbol, limit) {
       limit,
     });
   } catch (error) {
-    logError("Failed to fetch futures order book", error, {
-      symbol,
-      limit,
+    logError("Falha ao buscar livro de ofertas da Futures", error, {
+      ativo: symbol,
+      limite: limit,
     });
     throw error;
   }
@@ -159,7 +221,11 @@ export default {
   getBalance,
   getCandles,
   getExchangeInfo,
+  getOrder,
   getOrderBook,
+  getOpenOrders,
   getPositionRisk,
   newOrder,
+  cancelOrder,
+  cancelAllOpenOrders,
 };

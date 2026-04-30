@@ -34,6 +34,20 @@ function roundToStep(value, step, mode = "floor") {
   return Number(((roundedUnits * normalizedStep) / factor).toFixed(precision));
 }
 
+function clampPrice(value, minPrice, maxPrice) {
+  let normalizedValue = value;
+
+  if (Number.isFinite(minPrice) && minPrice > 0) {
+    normalizedValue = Math.max(normalizedValue, minPrice);
+  }
+
+  if (Number.isFinite(maxPrice) && maxPrice > 0) {
+    normalizedValue = Math.min(normalizedValue, maxPrice);
+  }
+
+  return normalizedValue;
+}
+
 function normalizePositionSide(position) {
   const amount = Number.parseFloat(position.positionAmt);
 
@@ -64,8 +78,8 @@ export async function getUSDTBRL() {
 
     return Number.parseFloat(response.data.price);
   } catch (error) {
-    logWarn("Failed to fetch USDTBRL, using fallback", {
-      fallback: tradingConfig.defaultUsdtBrl,
+    logWarn("Falha ao buscar USDTBRL, usando valor padrao", {
+      valorPadrao: tradingConfig.defaultUsdtBrl,
     });
     return tradingConfig.defaultUsdtBrl;
   }
@@ -77,13 +91,13 @@ export async function getUSDTBalance() {
     const usdtBalance = balances.find((balance) => balance.asset === "USDT");
 
     if (!usdtBalance) {
-      logWarn("USDT balance not found");
+      logWarn("Saldo de USDT nao encontrado");
       return 0;
     }
 
     return Number.parseFloat(usdtBalance.availableBalance);
   } catch (error) {
-    logError("Failed to fetch USDT balance", error);
+    logError("Falha ao buscar saldo de USDT", error);
     return 0;
   }
 }
@@ -97,10 +111,10 @@ export async function getCandles(
     const candles = await api.getCandles(symbol, interval, limit);
     return candles.map(parseCandle);
   } catch (error) {
-    logError("Failed to fetch candles", error, {
-      symbol,
-      interval,
-      limit,
+    logError("Falha ao buscar candles", error, {
+      ativo: symbol,
+      intervalo: interval,
+      limite: limit,
     });
     throw error;
   }
@@ -161,9 +175,9 @@ export async function getOrderBookSnapshot(
       })),
     };
   } catch (error) {
-    logError("Failed to fetch order book", error, {
-      symbol,
-      limit,
+    logError("Falha ao buscar livro de ofertas", error, {
+      ativo: symbol,
+      limite: limit,
     });
     throw error;
   }
@@ -178,7 +192,7 @@ export async function getSymbolRules(symbol = tradingConfig.symbol) {
   const symbolInfo = exchangeInfo.symbols.find((item) => item.symbol === symbol);
 
   if (!symbolInfo) {
-    throw new Error(`Trading rules not found for symbol ${symbol}`);
+    throw new Error(`Regras de negociacao nao encontradas para o ativo ${symbol}`);
   }
 
   const lotSize =
@@ -193,6 +207,16 @@ export async function getSymbolRules(symbol = tradingConfig.symbol) {
     maxQty: Number.parseFloat(lotSize?.maxQty || "0"),
     stepSize: Number.parseFloat(lotSize?.stepSize || "0.001"),
     minNotional: Number.parseFloat(minNotionalFilter?.notional || "5"),
+    minPrice: Number.parseFloat(
+      symbolInfo.filters.find((filter) => filter.filterType === "PRICE_FILTER")?.minPrice || "0"
+    ),
+    maxPrice: Number.parseFloat(
+      symbolInfo.filters.find((filter) => filter.filterType === "PRICE_FILTER")?.maxPrice || "0"
+    ),
+    tickSize: Number.parseFloat(
+      symbolInfo.filters.find((filter) => filter.filterType === "PRICE_FILTER")?.tickSize ||
+        "0.01"
+    ),
   };
 
   symbolRulesCache.set(symbol, rules);
@@ -222,6 +246,16 @@ export async function calculateOrderQuantity(
   return quantity;
 }
 
+export async function normalizeTriggerPrice(
+  price,
+  symbol = tradingConfig.symbol,
+  mode = "floor"
+) {
+  const rules = await getSymbolRules(symbol);
+  const clamped = clampPrice(price, rules.minPrice, rules.maxPrice);
+  return roundToStep(clamped, rules.tickSize, mode);
+}
+
 export async function getOpenPosition(symbol = tradingConfig.symbol) {
   try {
     const positions = await api.getPositionRisk(symbol);
@@ -247,7 +281,7 @@ export async function getOpenPosition(symbol = tradingConfig.symbol) {
       updateTime: Number(activePosition.updateTime),
     };
   } catch (error) {
-    logError("Failed to fetch open position", error, { symbol });
+    logError("Falha ao buscar posicao em aberto", error, { ativo: symbol });
     throw error;
   }
 }

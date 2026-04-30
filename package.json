@@ -1,14 +1,34 @@
 {
-  "name": "binance-foop1",
+  "name": "binance-futures",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "private": true,
   "type": "module",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "scripts": {
     "start": "node index.js",
+    "start:new": "npm run start -w @binance-futures/bot-worker",
     "start:paper": "node src/cli/paper.js",
     "backtest": "node src/cli/backtest.js",
-    "status": "node src/cli/status.js"
+    "db:migrate": "node src/cli/db-migrate.js",
+    "status": "node src/cli/status.js",
+    "api": "node src/api/server.js",
+    "docker:up": "docker compose up -d bot",
+    "docker:down": "docker compose down",
+    "docker:logs": "docker compose logs -f bot",
+    "docker:up:paper": "docker compose --profile paper up -d bot-paper",
+    "docker:up:platform": "docker compose --profile platform up -d postgres control-center bot",
+    "docker:status": "docker compose --profile tools run --rm status",
+    "docker:backtest": "docker compose --profile tools run --rm backtest",
+    "dev:web": "npm run dev -w @binance-futures/web",
+    "dev:api": "npm run start:dev -w @binance-futures/api",
+    "dev:bot": "npm run dev -w @binance-futures/bot-worker",
+    "build:shared": "npm run build -w @binance-futures/shared",
+    "typecheck:new": "npm run typecheck -w @binance-futures/shared && npm run typecheck -w @binance-futures/bot-worker && npm run typecheck -w @binance-futures/api && npm run typecheck -w @binance-futures/web"
   },
   "keywords": [],
   "author": "Ballantines88",
@@ -16,6 +36,11 @@
   "dependencies": {
     "axios": "^1.14.0",
     "dotenv": "^17.3.1",
+    "express": "^5.1.0",
+    "pg": "^8.16.3",
     "ws": "^8.20.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3"
   }
 }

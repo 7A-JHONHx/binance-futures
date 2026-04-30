@@ -6,7 +6,7 @@ export async function sendMessage(text) {
   const chatId = process.env.TELEGRAM_CHAT_ID;
 
   if (!token || !chatId) {
-    logWarn("Telegram not configured, skipping notification");
+    logWarn("Telegram nao configurado, notificacao ignorada");
     return false;
   }
 
@@ -18,7 +18,7 @@ export async function sendMessage(text) {
 
     return true;
   } catch (error) {
-    logError("Failed to send Telegram message", error);
+    logError("Falha ao enviar mensagem para o Telegram", error);
     return false;
   }
 }

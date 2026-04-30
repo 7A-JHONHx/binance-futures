@@ -1,0 +1,97 @@
+x-bot-base: &bot-base
+  build:
+    context: .
+    dockerfile: Dockerfile
+  working_dir: /app
+  env_file:
+    - .env
+  environment:
+    TZ: ${TZ:-America/Sao_Paulo}
+    NODE_ENV: production
+    LOG_FORMAT: ${LOG_FORMAT:-pretty}
+    DATABASE_ENABLED: "true"
+    DATABASE_URL: ${DATABASE_URL:-postgres://binance:binance@postgres:5432/binance_futures}
+    DATABASE_SSL: ${DATABASE_SSL:-false}
+  volumes:
+    - ./.runtime:/app/.runtime
+    - ./data:/app/data
+  init: true
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: binance-futures-postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-binance_futures}
+      POSTGRES_USER: ${POSTGRES_USER:-binance}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-binance}
+      TZ: ${TZ:-America/Sao_Paulo}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-binance} -d ${POSTGRES_DB:-binance_futures}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  bot:
+    <<: *bot-base
+    container_name: binance-futures-bot
+    command: npm start
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  bot-paper:
+    <<: *bot-base
+    container_name: binance-futures-paper
+    command: npm run start:paper
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    profiles:
+      - paper
+
+  control-center:
+    <<: *bot-base
+    container_name: binance-futures-control-center
+    command: npm run api
+    environment:
+      TZ: ${TZ:-America/Sao_Paulo}
+      NODE_ENV: production
+      LOG_FORMAT: ${LOG_FORMAT:-pretty}
+      API_PORT: 3000
+      DASHBOARD_REFRESH_MS: ${DASHBOARD_REFRESH_MS:-5000}
+      DATABASE_ENABLED: "true"
+      DATABASE_URL: ${DATABASE_URL:-postgres://binance:binance@postgres:5432/binance_futures}
+      DATABASE_SSL: ${DATABASE_SSL:-false}
+    ports:
+      - "${API_PORT:-3000}:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    profiles:
+      - platform
+
+  status:
+    <<: *bot-base
+    entrypoint: ["npm", "run", "status"]
+    restart: "no"
+    profiles:
+      - tools
+
+  backtest:
+    <<: *bot-base
+    entrypoint: ["npm", "run", "backtest", "--"]
+    restart: "no"
+    profiles:
+      - tools
+
+volumes:
+  postgres-data:

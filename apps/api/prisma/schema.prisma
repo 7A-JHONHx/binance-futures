@@ -1,0 +1,96 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model BotSnapshot {
+  id          BigInt   @id @default(autoincrement())
+  generatedAt DateTime @map("generated_at") @db.Timestamptz(6)
+  symbol      String
+  mode        String
+  payload     Json
+
+  @@map("bot_snapshots")
+  @@index([symbol, mode, generatedAt], map: "idx_bot_snapshots_symbol_mode_generated")
+}
+
+model BotMetric {
+  id          BigInt   @id @default(autoincrement())
+  generatedAt DateTime @map("generated_at") @db.Timestamptz(6)
+  symbol      String
+  mode        String
+  payload     Json
+
+  @@map("bot_metrics")
+  @@index([symbol, mode, generatedAt], map: "idx_bot_metrics_symbol_mode_generated")
+}
+
+model Trade {
+  id                   BigInt    @id @default(autoincrement())
+  eventTimestamp       DateTime  @map("event_timestamp") @db.Timestamptz(6)
+  symbol               String
+  mode                 String
+  side                 String
+  action               String
+  entryPrice           Float?    @map("entry_price") @db.DoublePrecision
+  exitPrice            Float?    @map("exit_price") @db.DoublePrecision
+  quantity             Float?    @db.DoublePrecision
+  stopLoss             Float?    @map("stop_loss") @db.DoublePrecision
+  takeProfit           Float?    @map("take_profit") @db.DoublePrecision
+  pnlUsdt              Float?    @map("pnl_usdt") @db.DoublePrecision
+  pnlBrl               Float?    @map("pnl_brl") @db.DoublePrecision
+  fees                 Float?    @db.DoublePrecision
+  reason               String?
+  openedAt             DateTime? @map("opened_at") @db.Timestamptz(6)
+  closedAt             DateTime? @map("closed_at") @db.Timestamptz(6)
+  signalCandleOpenTime BigInt?   @map("signal_candle_open_time")
+  analysisDecision     String?   @map("analysis_decision")
+  payload              Json
+
+  @@map("trades")
+  @@index([symbol, mode, eventTimestamp], map: "idx_trades_symbol_mode_event")
+}
+
+model Analysis {
+  id                   BigInt    @id @default(autoincrement())
+  eventTimestamp       DateTime  @map("event_timestamp") @db.Timestamptz(6)
+  symbol               String
+  mode                 String
+  decision             String
+  longScore            Float?    @map("long_score") @db.DoublePrecision
+  shortScore           Float?    @map("short_score") @db.DoublePrecision
+  closePrice           Float?    @map("close_price") @db.DoublePrecision
+  emaFast              Float?    @map("ema_fast") @db.DoublePrecision
+  emaSlow              Float?    @map("ema_slow") @db.DoublePrecision
+  emaTrend             Float?    @map("ema_trend") @db.DoublePrecision
+  smaTrend             Float?    @map("sma_trend") @db.DoublePrecision
+  rsi                  Float?    @db.DoublePrecision
+  macd                 Float?    @db.DoublePrecision
+  macdSignal           Float?    @map("macd_signal") @db.DoublePrecision
+  macdHistogram        Float?    @map("macd_histogram") @db.DoublePrecision
+  atr                  Float?    @db.DoublePrecision
+  atrPercent           Float?    @map("atr_percent") @db.DoublePrecision
+  volumeRatio          Float?    @map("volume_ratio") @db.DoublePrecision
+  orderBookImbalance   Float?    @map("order_book_imbalance") @db.DoublePrecision
+  candleBodyRatio      Float?    @map("candle_body_ratio") @db.DoublePrecision
+  signalCandleOpenTime BigInt?   @map("signal_candle_open_time")
+  payload              Json
+
+  @@map("analyses")
+  @@index([symbol, mode, eventTimestamp], map: "idx_analyses_symbol_mode_event")
+}
+
+model BotSetting {
+  id          BigInt   @id @default(autoincrement())
+  key         String   @map("setting_key")
+  value       Json
+  description String?
+  updatedAt   DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+
+  @@map("bot_settings")
+  @@unique([key], map: "idx_bot_settings_key")
+}

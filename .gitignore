@@ -22,11 +22,20 @@ pnpm-debug.log*
 coverage/
 dist/
 build/
+.next/
 .runtime/
 data/
+apps/*/node_modules/
+apps/*/.next/
+apps/*/dist/
+packages/*/node_modules/
+packages/*/dist/
+*.tsbuildinfo
 
 # OS/editor files
 .DS_Store
 Thumbs.db
 .vscode/
 .idea/
+
+/src/generated/prisma

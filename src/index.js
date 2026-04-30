@@ -1,22 +1,37 @@
 import { tradingConfig } from "./config/trading.config.js";
 import { initializeStrategy } from "./services/strategy.service.js";
 import { logError, logInfo } from "./utils/logger.js";
-import { startWebSocket } from "./websocket/ws.client.js";
+import { resolveStreamBaseUrl, startWebSocket } from "./websocket/ws.client.js";
 
-try {
+function buildStartupContext() {
+  return {
+    modo: tradingConfig.tradingMode === "paper" ? "simulado" : "real",
+    ativo: tradingConfig.symbol,
+    valorOperacaoUsdt: tradingConfig.usdAmount,
+    intervaloCandles: tradingConfig.candleInterval,
+    apiUrl: process.env.API_URL || "n/d",
+    streamUrl: resolveStreamBaseUrl(),
+  };
+}
+
+export async function bootstrapLegacyStrategy() {
   await initializeStrategy();
 
-  logInfo("Bot started", {
-    mode: tradingConfig.tradingMode,
-    symbol: tradingConfig.symbol,
-    usdAmount: tradingConfig.usdAmount,
-    candleInterval: tradingConfig.candleInterval,
-  });
+  logInfo("Bot iniciado", buildStartupContext());
+}
 
+export function startLegacyMarketStream() {
   startWebSocket();
-} catch (error) {
-  logError("Bot startup failed", error, {
-    symbol: tradingConfig.symbol,
-  });
-  process.exit(1);
+}
+
+export async function startLegacyBotRuntime() {
+  try {
+    await bootstrapLegacyStrategy();
+    startLegacyMarketStream();
+  } catch (error) {
+    logError("Falha ao iniciar o bot", error, {
+      ativo: tradingConfig.symbol,
+    });
+    process.exit(1);
+  }
 }

@@ -8,7 +8,9 @@ export function buildStatusSnapshot({ state, latestPrice = null }) {
     latestPrice,
     position: state.position,
     runtime: state.runtime,
+    activity: state.activity,
     portfolio: state.portfolio,
+    daily: state.daily,
     analysis: state.analysis,
   };
 }
@@ -31,5 +33,16 @@ export function buildPerformanceMetrics({ state }) {
     feesPaid: state.portfolio.feesPaid,
     paperAvailableBalance: state.portfolio.paperAvailableBalance,
     paperAllocatedMargin: state.portfolio.paperAllocatedMargin,
+    dailyTradingDay: state.daily.tradingDay,
+    dailyEntriesOpened: state.daily.entriesOpened,
+    dailyTradesClosed: state.daily.tradesClosed,
+    dailyNetRealizedPnl: state.daily.netRealizedPnl,
+    dailyPositivePnl: state.daily.positivePnl,
+    dailyNegativePnl: state.daily.negativePnl,
+    dailyTradingPaused: state.daily.tradingPaused,
+    dailyPauseReason: state.daily.pauseReason,
+    lastEntryAt: state.activity.lastEntryAt,
+    lastExitAt: state.activity.lastExitAt,
+    lastTradeAt: state.activity.lastTradeAt,
   };
 }

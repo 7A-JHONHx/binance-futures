@@ -183,7 +183,7 @@ export async function runBacktest(rawOptions = {}) {
   const minimumCandles = Math.max(tradingConfig.trendSmaPeriod + 1, 210);
 
   if (candles.length <= minimumCandles + 2) {
-    throw new Error("Not enough historical candles for backtest");
+    throw new Error("Nao ha candles historicos suficientes para o backtest");
   }
 
   const runId = buildBacktestRunId(options.symbol, options.interval);

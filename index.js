@@ -1,2 +1,4 @@
 import "dotenv/config";
-import "./src/index.js";
+import { startLegacyBotRuntime } from "./src/index.js";
+
+await startLegacyBotRuntime();

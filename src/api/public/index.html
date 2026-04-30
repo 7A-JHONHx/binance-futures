@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Binance Futures Control Center</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="background-orb background-orb-left"></div>
+    <div class="background-orb background-orb-right"></div>
+    <div class="background-mesh"></div>
+
+    <div class="app-shell">
+      <aside class="sidebar">
+        <div class="brand-card">
+          <div class="brand-mark" aria-hidden="true">
+            <span class="brand-mark-piece brand-mark-piece-1"></span>
+            <span class="brand-mark-piece brand-mark-piece-2"></span>
+            <span class="brand-mark-piece brand-mark-piece-3"></span>
+            <span class="brand-mark-piece brand-mark-piece-4"></span>
+          </div>
+          <div>
+            <p class="eyebrow">Painel operacional</p>
+            <h1 class="brand-title">Bot Binance</h1>
+            <p class="brand-copy">Controle ao vivo, leitura de mercado e execucao.</p>
+          </div>
+        </div>
+
+        <nav class="sidebar-nav">
+          <button class="nav-item nav-item-active" type="button" data-view="dashboard" aria-pressed="true">
+            <span class="nav-icon">01</span>
+            <span>Dashboard</span>
+          </button>
+          <button class="nav-item" type="button" data-view="operacoes" aria-pressed="false">
+            <span class="nav-icon">02</span>
+            <span>Operacoes</span>
+          </button>
+          <button class="nav-item" type="button" data-view="mercado" aria-pressed="false">
+            <span class="nav-icon">03</span>
+            <span>Mercado</span>
+          </button>
+          <button class="nav-item" type="button" data-view="estrategia" aria-pressed="false">
+            <span class="nav-icon">04</span>
+            <span>Estrategia</span>
+          </button>
+          <button class="nav-item" type="button" data-view="backtest" aria-pressed="false">
+            <span class="nav-icon">05</span>
+            <span>Backtest</span>
+          </button>
+          <button class="nav-item" type="button" data-view="relatorios" aria-pressed="false">
+            <span class="nav-icon">06</span>
+            <span>Relatorios</span>
+          </button>
+        </nav>
+
+        <div class="sidebar-stack">
+          <article class="sidebar-panel">
+            <span class="sidebar-label">Estado do robo</span>
+            <strong class="sidebar-value" id="sidebar-bot-state">Carregando...</strong>
+            <span class="sidebar-meta" id="sidebar-bot-sub">Aguardando dados</span>
+          </article>
+
+          <article class="sidebar-panel sidebar-panel-soft">
+            <span class="sidebar-label">Resultado do dia</span>
+            <strong class="sidebar-value" id="sidebar-day-pnl">--</strong>
+            <span class="sidebar-meta" id="sidebar-source">Fonte --</span>
+          </article>
+
+          <article class="sidebar-panel promo-panel">
+            <span class="sidebar-label">Ambiente premium</span>
+            <strong class="sidebar-value">Binance Pro</strong>
+            <span class="sidebar-meta">
+              Painel pronto para evoluir com mais automacoes, alertas e leitura operacional.
+            </span>
+            <button class="promo-button" type="button">Em evolucao</button>
+          </article>
+        </div>
+      </aside>
+
+      <main class="dashboard-shell">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow">Control center</p>
+            <h2 class="page-title" id="page-title">Binance Futures Dashboard</h2>
+            <p class="page-copy" id="page-copy">
+              Estrategia, risco, desempenho e trilha operacional em uma tela mais clara.
+            </p>
+          </div>
+
+          <div class="topbar-right">
+            <div class="topbar-status">
+              <div class="status-pod">
+                <span class="status-dot status-dot-live"></span>
+                <div>
+                  <strong>Bot ativo</strong>
+                  <small id="status-bot-text">Carregando...</small>
+                </div>
+              </div>
+
+              <div class="status-pod">
+                <span class="status-dot status-dot-db"></span>
+                <div>
+                  <strong>Infra e API</strong>
+                  <small id="db-pill">Banco: verificando...</small>
+                </div>
+              </div>
+
+              <div class="status-pod">
+                <span class="status-dot status-dot-clock"></span>
+                <div>
+                  <strong>Agora</strong>
+                  <small id="header-clock">--:--:--</small>
+                </div>
+              </div>
+
+              <div class="status-pod status-pod-wide">
+                <span class="status-dot status-dot-source"></span>
+                <div>
+                  <strong>Fonte</strong>
+                  <small id="source-pill">Carregando fonte...</small>
+                </div>
+              </div>
+            </div>
+
+            <div class="topbar-utilities">
+              <button class="utility-button" type="button" aria-label="Alertas">
+                <span class="utility-badge">3</span>
+                <span>!</span>
+              </button>
+              <div class="utility-avatar" aria-label="Workspace">BB</div>
+            </div>
+          </div>
+        </header>
+
+        <section class="view-banner is-hidden" id="view-banner">
+          <article class="panel-card view-banner-card">
+            <div class="view-banner-copy">
+              <p class="eyebrow" id="view-banner-eyebrow">Visao atual</p>
+              <h3 class="panel-title" id="view-banner-title">Dashboard</h3>
+              <p class="page-copy view-banner-text" id="view-banner-text">
+                Resumo contextual da area selecionada.
+              </p>
+            </div>
+            <div class="view-banner-tags" id="view-banner-tags"></div>
+          </article>
+        </section>
+
+        <section class="hero-metrics" id="section-hero">
+          <article class="hero-card hero-card-spotlight">
+            <div class="hero-card-copy">
+              <span class="hero-label">Preco atual</span>
+              <strong class="hero-value" id="metric-price">--</strong>
+              <span class="hero-foot" id="metric-price-foot">--</span>
+            </div>
+            <svg class="hero-sparkline" id="metric-price-spark" viewBox="0 0 100 44" preserveAspectRatio="none"></svg>
+          </article>
+
+          <article class="hero-card">
+            <div class="hero-card-copy">
+              <span class="hero-label">Resultado do dia</span>
+              <strong class="hero-value" id="metric-daily-pnl">--</strong>
+              <span class="hero-foot" id="metric-daily-foot">--</span>
+            </div>
+            <svg class="hero-sparkline" id="metric-daily-spark" viewBox="0 0 100 44" preserveAspectRatio="none"></svg>
+          </article>
+
+          <article class="hero-card">
+            <div class="hero-card-copy">
+              <span class="hero-label">Resultado acumulado</span>
+              <strong class="hero-value" id="metric-total-pnl">--</strong>
+              <span class="hero-foot" id="metric-total-foot">--</span>
+            </div>
+            <svg class="hero-sparkline" id="metric-total-spark" viewBox="0 0 100 44" preserveAspectRatio="none"></svg>
+          </article>
+
+          <article class="hero-card">
+            <div class="hero-card-copy">
+              <span class="hero-label">Drawdown do dia</span>
+              <strong class="hero-value" id="metric-drawdown">--</strong>
+              <span class="hero-foot" id="metric-drawdown-foot">--</span>
+            </div>
+            <svg class="hero-sparkline" id="metric-drawdown-spark" viewBox="0 0 100 44" preserveAspectRatio="none"></svg>
+          </article>
+        </section>
+
+        <section class="insight-grid" id="section-insight">
+          <article class="panel-card market-card" id="card-market">
+            <div class="panel-header">
+              <div class="market-title-wrap">
+                <div class="asset-coin">B</div>
+                <div>
+                <p class="eyebrow">Mercado principal</p>
+                <h3 class="panel-title" id="market-symbol">BTCUSDT</h3>
+                </div>
+              </div>
+              <div class="market-head-actions">
+                <span class="mode-badge" id="market-mode">--</span>
+                <button class="ghost-chip" type="button" aria-label="Favorito">+</button>
+              </div>
+            </div>
+
+            <div class="market-price-row">
+              <div>
+                <span class="support-label">Preco atual</span>
+                <strong class="market-price" id="market-price">--</strong>
+                <span class="market-caption" id="market-status">Aguardando leitura</span>
+              </div>
+              <div class="market-mini-grid">
+                <div class="market-mini-stat">
+                  <span>Entrada</span>
+                  <strong id="market-entry">--</strong>
+                </div>
+                <div class="market-mini-stat">
+                  <span>Stop</span>
+                  <strong id="market-stop">--</strong>
+                </div>
+                <div class="market-mini-stat">
+                  <span>Alvo</span>
+                  <strong id="market-target">--</strong>
+                </div>
+                <div class="market-mini-stat">
+                  <span>PnL em aberto</span>
+                  <strong id="market-open-pnl">--</strong>
+                </div>
+              </div>
+            </div>
+
+            <div class="market-chart-wrap">
+              <svg id="market-price-spark" viewBox="0 0 100 54" preserveAspectRatio="none"></svg>
+            </div>
+
+            <div class="market-footer-grid">
+              <div class="summary-item">
+                <span>Ultima entrada</span>
+                <strong id="summary-last-entry">--</strong>
+              </div>
+              <div class="summary-item">
+                <span>Ultima saida</span>
+                <strong id="summary-last-exit">--</strong>
+              </div>
+              <div class="summary-item">
+                <span>Status do dia</span>
+                <strong id="summary-day-status">--</strong>
+              </div>
+              <div class="summary-item">
+                <span>Atualizado</span>
+                <strong id="last-updated">Atualizando...</strong>
+              </div>
+            </div>
+          </article>
+
+          <article class="panel-card analysis-card" id="analysis-tone-card">
+            <div class="panel-header">
+              <div>
+                <p class="eyebrow">Leitura do mercado</p>
+                <h3 class="panel-title" id="analysis-bias">Aguardando leitura</h3>
+              </div>
+              <span class="analysis-badge" id="analysis-badge">Aguardando</span>
+            </div>
+
+            <p class="analysis-decision" id="analysis-decision">Nenhuma entrada</p>
+            <p class="analysis-summary" id="analysis-summary">Esperando alinhamento tecnico.</p>
+
+            <div class="analysis-scoreboard">
+              <div class="analysis-score-col">
+                <span>Score LONG</span>
+                <strong id="analysis-long-score">--</strong>
+                <div class="score-bar">
+                  <span class="score-fill score-fill-long" id="analysis-long-fill"></span>
+                </div>
+              </div>
+
+              <div class="score-ring" id="analysis-score-ring">
+                <div class="score-ring-core">
+                  <strong id="analysis-score-total">--</strong>
+                  <span>Setup</span>
+                </div>
+              </div>
+
+              <div class="analysis-score-col analysis-score-col-right">
+                <span>Score SHORT</span>
+                <strong id="analysis-short-score">--</strong>
+                <div class="score-bar">
+                  <span class="score-fill score-fill-short" id="analysis-short-fill"></span>
+                </div>
+              </div>
+            </div>
+
+            <div class="analysis-notes">
+              <div class="notes-block">
+                <span class="support-label">Motivos da leitura</span>
+                <strong id="analysis-reasons">--</strong>
+              </div>
+              <div class="notes-block">
+                <span class="support-label">Bloqueios atuais</span>
+                <strong id="analysis-blockers">--</strong>
+              </div>
+            </div>
+          </article>
+
+          <article class="panel-card indicators-card" id="card-indicators">
+            <div class="panel-header">
+              <div>
+                <p class="eyebrow">Indicadores tecnicos</p>
+                <h3 class="panel-title">Radar de momento</h3>
+              </div>
+            </div>
+
+            <div class="indicator-grid">
+              <div class="indicator-row">
+                <span>RSI (14)</span>
+                <strong id="indicator-rsi">--</strong>
+                <small id="indicator-rsi-state">--</small>
+              </div>
+              <div class="indicator-row">
+                <span>MACD</span>
+                <strong id="indicator-macd">--</strong>
+                <small id="indicator-macd-state">--</small>
+              </div>
+              <div class="indicator-row">
+                <span>Sinal</span>
+                <strong id="indicator-signal">--</strong>
+                <small id="indicator-signal-state">--</small>
+              </div>
+              <div class="indicator-row">
+                <span>Histograma</span>
+                <strong id="indicator-histogram">--</strong>
+                <small id="indicator-histogram-state">--</small>
+              </div>
+            </div>
+
+            <div class="indicator-chart-wrap">
+              <svg id="indicator-chart" viewBox="0 0 100 40" preserveAspectRatio="none"></svg>
+            </div>
+          </article>
+        </section>
+
+        <section class="signal-grid" id="section-signal">
+          <article class="panel-card flow-card" id="card-flow">
+            <div class="flow-header">
+              <p class="eyebrow">Fluxo do mercado</p>
+              <h3 class="panel-title">Intensidade dos filtros</h3>
+            </div>
+
+            <div class="flow-grid">
+              <div class="flow-metric">
+                <div class="flow-meter"><span id="flow-volume-fill"></span></div>
+                <span>Volume</span>
+                <strong id="flow-volume-value">--</strong>
+                <small id="flow-volume-state">--</small>
+              </div>
+              <div class="flow-metric">
+                <div class="flow-meter"><span id="flow-book-fill"></span></div>
+                <span>Book</span>
+                <strong id="flow-book-value">--</strong>
+                <small id="flow-book-state">--</small>
+              </div>
+              <div class="flow-metric">
+                <div class="flow-meter"><span id="flow-atr-fill"></span></div>
+                <span>ATR%</span>
+                <strong id="flow-atr-value">--</strong>
+                <small id="flow-atr-state">--</small>
+              </div>
+              <div class="flow-metric">
+                <div class="flow-meter"><span id="flow-candle-fill"></span></div>
+                <span>Candle</span>
+                <strong id="flow-candle-value">--</strong>
+                <small id="flow-candle-state">--</small>
+              </div>
+            </div>
+          </article>
+
+          <article class="panel-card blockers-card" id="card-blockers">
+            <div class="panel-header">
+              <div>
+                <p class="eyebrow">Bloqueios ativos</p>
+                <h3 class="panel-title">Por que o robo nao entrou</h3>
+              </div>
+            </div>
+            <ul class="blockers-list" id="blockers-list">
+              <li>Nenhum bloqueio registrado.</li>
+            </ul>
+          </article>
+
+          <article class="panel-card bot-status-card" id="card-bot-status">
+            <div class="panel-header">
+              <div>
+                <p class="eyebrow">Status do bot</p>
+                <h3 class="panel-title" id="bot-status-main">Carregando...</h3>
+              </div>
+            </div>
+
+            <div class="status-grid">
+              <div class="status-row">
+                <span>Processando</span>
+                <strong id="bot-status-process">--</strong>
+              </div>
+              <div class="status-row">
+                <span>Posicao atual</span>
+                <strong id="bot-status-position">--</strong>
+              </div>
+              <div class="status-row">
+                <span>Cooldown</span>
+                <strong id="bot-status-cooldown">--</strong>
+              </div>
+              <div class="status-row">
+                <span>Status do dia</span>
+                <strong id="bot-status-day">--</strong>
+              </div>
+              <div class="status-row">
+                <span>Banco</span>
+                <strong id="bot-status-db">--</strong>
+              </div>
+            </div>
+          </article>
+        </section>
+
+        <section class="performance-grid" id="section-performance">
+          <article class="panel-card chart-card" id="card-pnl">
+            <div class="panel-header">
+              <div>
+                <p class="eyebrow">Desempenho do dia</p>
+                <h3 class="panel-title">PnL em tempo real</h3>
+              </div>
+              <span class="panel-badge panel-badge-neutral" id="pnl-badge">Carregando</span>
+            </div>
+
+            <div class="chart-stage">
+              <svg id="pnl-chart" viewBox="0 0 100 100" preserveAspectRatio="none"></svg>
+            </div>
+
+            <div class="chart-meta-grid">
+              <div class="summary-item">
+                <span>PnL total</span>
+                <strong id="pnl-current">--</strong>
+              </div>
+              <div class="summary-item">
+                <span>Realizado</span>
+                <strong id="pnl-realized">--</strong>
+              </div>
+              <div class="summary-item">
+                <span>Em aberto</span>
+                <strong id="pnl-unrealized">--</strong>
+              </div>
+              <div class="summary-item">
+                <span>Pontos</span>
+                <strong id="pnl-points">--</strong>
+              </div>
+            </div>
+          </article>
+
+          <article class="panel-card chart-card" id="card-equity">
+            <div class="panel-header">
+              <div>
+                <p class="eyebrow">Desempenho acumulado</p>
+                <h3 class="panel-title">Equity da estrategia</h3>
+              </div>
+              <span class="panel-badge" id="equity-badge">Carregando</span>
+            </div>
+
+            <div class="chart-stage">
+              <svg id="equity-chart" viewBox="0 0 100 100" preserveAspectRatio="none"></svg>
+            </div>
+
+            <div class="chart-meta-grid">
+              <div class="summary-item">
+                <span>Equity atual</span>
+                <strong id="equity-current">--</strong>
+              </div>
+              <div class="summary-item">
+                <span>PnL em aberto</span>
+                <strong id="equity-unrealized">--</strong>
+              </div>
+              <div class="summary-item">
+                <span>PnL realizado</span>
+                <strong id="equity-realized">--</strong>
+              </div>
+              <div class="summary-item">
+                <span>Base inicial</span>
+                <strong id="equity-baseline">--</strong>
+              </div>
+            </div>
+          </article>
+        </section>
+
+        <section class="table-grid" id="section-tables">
+          <article class="panel-card table-card" id="card-trades">
+            <div class="panel-header">
+              <div>
+                <p class="eyebrow">Ultimas operacoes</p>
+                <h3 class="panel-title">Historico de trades</h3>
+              </div>
+            </div>
+
+            <div class="table-scroll">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Horario</th>
+                    <th>Lado</th>
+                    <th>Acao</th>
+                    <th>Entrada</th>
+                    <th>Saida</th>
+                    <th>Resultado</th>
+                    <th>Motivo</th>
+                  </tr>
+                </thead>
+                <tbody id="trades-body">
+                  <tr>
+                    <td colspan="7">Aguardando dados...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </article>
+
+          <article class="panel-card table-card" id="card-analyses">
+            <div class="panel-header">
+              <div>
+                <p class="eyebrow">Ultimas leituras</p>
+                <h3 class="panel-title">Analises de mercado</h3>
+              </div>
+            </div>
+
+            <div class="table-scroll">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Horario</th>
+                    <th>Decisao</th>
+                    <th>Score</th>
+                    <th>RSI</th>
+                    <th>ATR%</th>
+                    <th>Volume</th>
+                    <th>Book</th>
+                  </tr>
+                </thead>
+                <tbody id="analyses-body">
+                  <tr>
+                    <td colspan="7">Aguardando dados...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </article>
+        </section>
+
+        <footer class="footer-bar">
+          <span id="footer-mode">Modo --</span>
+          <span id="footer-symbol">Ativo --</span>
+          <span id="footer-database">Banco --</span>
+          <span id="footer-updated">Atualizacao --</span>
+        </footer>
+      </main>
+    </div>
+
+    <script src="/app.js" type="module"></script>
+  </body>
+</html>

@@ -7,6 +7,7 @@ O projeto foi separado para facilitar evolucao para:
 - banco de dados
 - API para painel web
 - deploy em servidor online
+- execucao em container com Docker
 - novos modos de execucao
 - novos adaptadores de notificacao
 
@@ -23,6 +24,9 @@ Contem adaptadores de persistencia.
 Hoje grava em arquivo.
 No futuro pode ser trocado por Postgres, MySQL, MongoDB ou Redis sem mudar a estrategia.
 
+`src/api/`
+Contem a API HTTP e o painel web do control center.
+
 `src/utils/`
 Funcoes puras e utilitarios, como indicadores tecnicos.
 
@@ -31,6 +35,9 @@ Entrypoints para comandos de terminal como paper trading, backtest e leitura de 
 
 `src/websocket/`
 Entrada de dados em tempo real via stream da Binance.
+
+`Dockerfile` e `docker-compose.yml`
+Base operacional para ambiente padronizado, persistencia via volumes e futuro deploy em VPS.
 
 ## Pontos preparados para expansao
 
@@ -47,12 +54,26 @@ Quando for migrar para banco, o caminho natural e:
 2. manter a mesma interface de escrita
 3. trocar a implementacao usada pelos services
 
+Hoje isso ja comecou com:
+
+- `src/repositories/postgres.repository.js`
+
+Ou seja:
+
+- o robo continua funcionando com arquivos
+- quando o Postgres estiver ativo, os dados podem ser espelhados para consulta estruturada
+
 ### 2. Painel web / API
 
 Hoje o robo ja gera arquivos prontos para consumo externo:
 
 - `data/monitoring/bot-status.json`
 - `data/monitoring/metrics.json`
+
+E agora tambem pode expor esses mesmos dados por API:
+
+- `src/api/server.js`
+- `src/services/control-center.service.js`
 
 Um servidor Express, Fastify ou Next.js pode simplesmente ler esses dados no começo.
 Depois, se quiser crescer, a mesma camada pode passar a ler do banco.
